@@ -1,0 +1,34 @@
+.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Cordova
+/inventario-admin/platforms
+/inventario-admin/plugins
+/public/cordova.js
+
+# Cordova
+/inventario-cordova/platforms
+/inventario-cordova/plugins
+/public/cordova.js
