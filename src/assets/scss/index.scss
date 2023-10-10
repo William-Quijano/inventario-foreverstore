@@ -1,0 +1,94 @@
+@import "variables";
+
+.v-list-group__items {
+  .v-list-item {
+    padding-left: 48px !important;
+
+    .v-list-item__icon {
+      margin-right: .5rem !important;
+    }
+  }
+}
+
+.app-img-logo-all {
+  width: 12.5rem;
+}
+
+.app-img-logo-mini {
+  width: 1.5rem;
+}
+
+.app-title-text {
+  font-size: 48px;
+  font-weight: 600;
+}
+
+.app-title-text-primary-color {
+  color: $color-primary;
+}
+
+.app-tabs {
+  .v-tabs-items {
+    background-color: transparent !important;
+  }
+  .app-tab {
+    font-weight: 400;
+    color: $color-primary !important;
+
+    .v-icon {
+      color: $color-primary !important;
+    }
+
+    justify-content: space-evenly !important;
+    border-bottom: 1px solid $color-primary;
+  }
+
+  .app-tabs-active,
+  .app-tab:hover {
+    color: white !important;
+
+    .v-icon {
+      color: white !important;
+    }
+
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    background-color: $color-primary;
+  }
+}
+
+.inputStyle label{
+  color: #753979 !important;
+}
+
+.inputStyle i::before{
+
+  color: #753979;
+
+}
+
+.v-input--is-focused .v-input__slot {
+  border: 1px solid #753979 !important;
+  .v-label--active{
+    color: #753979 !important;
+  }
+  fieldset {
+    color: #753979 !important;
+  }
+}
+
+
+.v-text-field--outlined .v-label {
+  top: 2px !important;
+}
+
+.v-input .v-input__slot{
+  border: 1px solid  #753979 !important;
+  fieldset {
+    color: #753979 !important;
+  }
+  /* border-bottom: 2px solid #509ed7 !important; */
+}
+//.theme--light.v-text-field > .v-input__control > .v-input__slot:before{
+//  border:  #753979 !important;
+//}
