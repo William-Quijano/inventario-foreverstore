@@ -18,3 +18,8 @@ export default {
 
 }
 </script>
+<style lang="scss" scoped>
+::v-deep .v-btn--absolute.v-btn--bottom, .v-btn--fixed.v-btn--bottom{
+  bottom: 71px !important;
+}
+</style>

@@ -32,3 +32,8 @@ package-lock.json
 /inventario-cordova/platforms
 /inventario-cordova/plugins
 /public/cordova.js
+
+# Cordova
+/foreverstore-cordova/platforms
+/foreverstore-cordova/plugins
+/public/cordova.js

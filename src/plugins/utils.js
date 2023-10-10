@@ -124,7 +124,6 @@ const buscarRuta = (rutas, ruta) => {
 };
 //Funcion para verificar las paths accesibles
 Vue.prototype.canNext = async (ruta) => {
-    return true;
     //Rutas a las que el usuario siempre va a poder acceder
     const permit = [
         "Forbidden",

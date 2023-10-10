@@ -1,9 +1,9 @@
 <template>
   <v-row class="justify-center">
-    <v-card width="100%" class="card-filter" color="pink" elevation="0">
-      <v-card-text>
+    <v-card class="card-filter" color="pink" elevation="5">
+      <v-card-text style="border: 3px solid purple;">
         <v-row class="align-center mt-5">
-          <v-col cols="12" md="5" v-if="searchProducto">
+          <v-col cols="12" sm="6" lg="5" v-if="searchProducto">
             <v-text-field
                 v-model="name_product"
                 label="Busqueda por producto"
@@ -11,11 +11,18 @@
                 rounded
                 class="inputStyle"
                 append-icon="mdi-magnify"
+                dense
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="5" v-if="searchCliente">
-            <v-text-field label="Busqueda por cliente" outlined rounded class="inputStyle"
-                          append-icon="mdi-magnify"></v-text-field>
+            <v-text-field
+                v-model="customerName"
+                label="Busqueda por cliente"
+                outlined
+                rounded
+                class="inputStyle"
+                dense
+                append-icon="mdi-magnify"></v-text-field>
           </v-col>
           <v-col cols="12" md="5" v-if="searchFecha">
             <v-menu
@@ -35,6 +42,7 @@
                     class="inputStyle"
                     append-icon="mdi-calendar"
                     readonly
+                    dense
                     v-bind="attrs"
                     v-on="on"
                 ></v-text-field>
@@ -48,19 +56,20 @@
               ></v-date-picker>
             </v-menu>
           </v-col>
-          <v-col cols="12" md="5" v-if="searchTipo">
+          <v-col cols="12" sm="6" lg="5" v-if="searchTipo">
             <v-autocomplete
                 v-model="idTypeProduct"
-                :items="tipoProducto"
+                :items="itemsProductType"
                 item-text="name"
                 item-value="id"
                 label="Tipo de prenda"
                 outlined
                 rounded
                 class="inputStyle"
+                dense
             ></v-autocomplete>
-          </v-col >
-          <v-col cols="12" md="2" class="pt-0 mb-4 d-flex justify-center" style="gap: 10px">
+          </v-col>
+          <v-col cols="12" lg="2" class="pt-0 mb-4 d-flex justify-center" style="gap: 10px">
             <v-btn color="purple" class="white--text" @click="searchFilters">
               {{ `Buscar` }}
               <v-icon>mdi-magnify</v-icon>
@@ -76,10 +85,11 @@
   </v-row>
 </template>
 <script>
+
 export default {
   name: 'SearchComponent',
   props: {
-    typeSearch:{
+    typeSearch: {
       type: String,
       default: () => 'product'
     },
@@ -105,34 +115,65 @@ export default {
       isOpenDate: false,
       fechaEntrega: null,
       name_product: null,
+      customerName: null,
       idTypeProduct: null,
-      tipoProducto: [
-        {
-          id: 1,
-          name: 'Blusa'
-        }
-      ]
+      itemsProductType: [],
     }
   },
-  methods:{
-    searchFilters(){
-      if(this.typeSearch === 'product'){
+  methods: {
+    searchFilters() {
+      if (this.typeSearch === 'product') {
         this.$emit('searchProduct', {
           nameProduct: this.name_product,
           typeProduct: this.idTypeProduct
+        })
+      } else if (this.typeSearch === 'customer') {
+        this.$emit('searchCustomer', {
+          nameCustomer: this.customerName
+        })
+
+      }
+    },
+    cleanFilters() {
+      if (this.typeSearch === 'product') {
+        this.name_product = "";
+        this.idTypeProduct = ""
+        this.$emit('searchProduct', {
+          nameProduct: this.name_product,
+          typeProduct: this.idTypeProduct
+        })
+      } else if (this.typeSearch === 'customer') {
+        this.customerName = "";
+        this.$emit('searchCustomer', {
+          nameCustomer: this.customerName,
         })
       }
     },
-    cleanFilters(){
-      if(this.typeSearch === 'product'){
-        this.name_product = null;
-        this.idTypeProduct = null
-        this.$emit('searchProduct', {
-          nameProduct: this.name_product,
-          typeProduct: this.idTypeProduct
+    async getProductType() {
+      try {
+        const response = await this.$getDocs(this.$collection(this.$DB, 'product_types'))
+        response.forEach((doc) => {
+          const data = {id: doc.id, ...doc.data()}
+
+          this.itemsProductType.push(data)
         })
+      } catch (e) {
+        console.log(e)
       }
+    },
+  },
+  async created() {
+    if (this.searchTipo) {
+      await this.getProductType()
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+.card-filter {
+  width: 100%;
+  z-index: 3;
+  top: 0;
+  position: fixed
+}
+</style>

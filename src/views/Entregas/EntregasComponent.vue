@@ -1,9 +1,9 @@
 <template>
   <v-container fluid>
-    <search-component style="position: fixed; z-index: 2" :search-cliente="true" :search-producto="true"
+    <search-component  :search-cliente="true" :search-producto="true"
                       :search-fecha="true"></search-component>
 
-    <v-row class="justify-center" :style="marginTop">
+    <v-row class="flex-column" :style="marginTop">
       <p class="purple--text text-h3 text-center">Entregas</p>
       <v-data-table
           :headers="headers"
@@ -24,7 +24,7 @@
   </v-container>
 </template>
 <script>
-import SearchComponent from "@/views/Productos/components/SearchComponent.vue";
+import SearchComponent from "@/components/SearchComponent.vue";
 
 export default {
   name: 'EntregasController',
