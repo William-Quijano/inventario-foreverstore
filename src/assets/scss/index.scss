@@ -77,6 +77,11 @@
   }
 }
 
+
+.v-text-field--outlined .v-label {
+  top: 2px !important;
+}
+
 .v-input .v-input__slot{
   border: 1px solid  #753979 !important;
   fieldset {

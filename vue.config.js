@@ -3,9 +3,15 @@ module.exports = {
     'vuetify'
   ],
 
-  publicPath: '',
+  publicPath: "/",
+
+  configureWebpack: {
+    devServer: {
+      historyApiFallback: true
+    }
+  },
 
   pluginOptions: {
-    cordovaPath: 'inventario-cordova'
+    cordovaPath: 'foreverstore-cordova'
   }
 }
