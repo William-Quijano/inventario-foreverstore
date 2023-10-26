@@ -1,6 +1,6 @@
 {
-  "name": "com.vue.foreverstore.app",
-  "displayName": "ForeverStoreInv",
+  "name": "com.vue.foreverstore.com",
+  "displayName": "ForeverStoreInventario",
   "version": "1.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
@@ -15,13 +15,20 @@
   "devDependencies": {
     "cordova-android": "~12.0.1",
     "cordova-browser": "~7.0.0",
-    "cordova-electron": "~3.1.0"
+    "cordova-electron": "~3.1.0",
+    "cordova-plugin-splashscreen": "^6.0.1"
   },
   "cordova": {
     "platforms": [
       "android",
       "browser",
       "electron"
-    ]
+    ],
+    "plugins": {
+      "cordova-plugin-splashscreen": {}
+    }
+  },
+  "dependencies": {
+    "image-preview-vue": "^1.2.11"
   }
 }

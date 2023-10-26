@@ -4,9 +4,6 @@
 
     <!--    <app-header></app-header>-->
     <!--    <app-aside-bar :menu="menu"></app-aside-bar>-->
-    <v-system-bar
-        height="30"
-    ></v-system-bar>
     <v-main>
       <div>
         <router-view :key="$route.fullPath"/>

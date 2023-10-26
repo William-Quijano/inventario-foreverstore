@@ -1,14 +1,20 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="pa-0">
     <search-component type-search="customer" :search-cliente="true" @searchCustomer="searchCustomer"></search-component>
-    <v-row class="flex-column " :style="marginTop">
+    <app-loader-f-s v-if="loading"></app-loader-f-s>
+    <v-row v-else class="flex-column mt-5 mx-5">
       <p class="purple--text text-h3 text-center">Clientes</p>
+      <v-row>
+        <v-col cols="12" class="d-flex justify-end">
+          <v-btn small color="purple" class="white--text" @click="createCutomerDialog = true">Agregar cliente</v-btn>
+        </v-col>
+      </v-row>
       <v-data-table
           :headers="headers"
           :items="customers"
-          class="elevation-1 mb-16"
+          class="elevation-0 mb-16"
           hide-default-footer
-
+          no-data-text="No hay clientes para mostrar"
       >
         <template #[`item.action`]="{item}">
           <v-btn icon @click="openDialogText(item)">
@@ -18,7 +24,26 @@
             <v-icon color="red">mdi-delete</v-icon>
           </v-btn>
         </template>
+        <template #footer>
+<!--          <v-row class="justify-center ma-10">-->
+<!--            <v-col cols="12" class="d-flex justify-center align-center">-->
+<!--              <v-btn icon color="purple" large @click="changePage(false)">-->
+<!--                <v-icon large>mdi-chevron-left</v-icon>-->
+<!--              </v-btn>-->
+<!--              <v-btn icon color="purple" large @click="changePage(true)">-->
+<!--                <v-icon large>mdi-chevron-right</v-icon>-->
+<!--              </v-btn>-->
+<!--            </v-col>-->
+<!--          </v-row>-->
+          <AppPagination
+              :total-registros="pagination.totalRows"
+              :page="pagination.page"
+              :per-page="pagination.perPage"
+              @input="changePage"
+          ></AppPagination>
+        </template>
       </v-data-table>
+
     </v-row>
 
     <v-dialog
@@ -49,7 +74,7 @@
       </v-card>
     </v-dialog>
 
-    <btn-plus @click="createCutomerDialog = true"></btn-plus>
+    <!--    <btn-plus ></btn-plus>-->
 
     <v-dialog
         v-model="createCutomerDialog"
@@ -76,6 +101,8 @@
                     class="inputStyle"
                     append-icon="mdi-magnify"
                     dense
+                    :error-messages="nameErrors"
+                    @change="$v.customer.name.$touch()"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" md="6">
@@ -89,6 +116,8 @@
                     placeholder="####-#####"
                     class="inputStyle"
                     v-mask="'####-####'"
+                    :error-messages="cellPhoneErrors"
+                    @change="$v.customer.cellphone.$touch()"
                 />
               </v-col>
             </v-row>
@@ -99,7 +128,7 @@
             <v-btn
                 text
                 color="red"
-                @click="createCutomerDialog = false"
+                @click="closeDialogCreate"
             >
               cancelar
             </v-btn>
@@ -120,16 +149,28 @@
 <script>
 import BtnPlus from "@/components/BtnPlus.vue";
 import SearchComponent from "@/components/SearchComponent.vue";
+import {maxLength, minLength, required} from "vuelidate/lib/validators";
+import AppPagination from "@/components/AppPagination.vue";
+import AppLoaderFS from "@/components/AppLoaderFS.vue";
 
 export default {
   name: 'ClientesController',
-  components: {SearchComponent, BtnPlus},
+  components: {AppLoaderFS, AppPagination, SearchComponent, BtnPlus},
   data() {
     return {
       dialog: false,
       createCutomerDialog: false,
+      loading: true,
+      TotalRows: 0,
       telefono: null,
       messageWsp: null,
+      ultimoDoc: null,
+      primerDoc: null,
+      pagination: {
+        page: 1,
+        perPage: 5,
+        totalRows: 0
+      },
       customer: {
         name: "",
         cellphone: ""
@@ -155,52 +196,135 @@ export default {
       customers: []
     }
   },
-  computed: {
-    marginTop() {
-      let marginTop = {}
-      if (this.$vuetify.breakpoint.mdAndUp) {
-        marginTop.marginTop = '150px'
-      } else {
-        marginTop.marginTop = '250px'
+  validations: {
+    customer: {
+      name: {
+        required
+      },
+      cellphone: {
+        required,
+        maxlength: maxLength(9),
+        minLength: minLength(9)
       }
-      return marginTop
     }
+  },
+  computed: {
+    nameErrors() {
+      const errors = [];
+      if (!this.$v.customer.name.$dirty) return errors;
+      !this.$v.customer.name.required && errors.push("Nombre requerido");
+      return errors;
+    },
+    cellPhoneErrors() {
+      const errors = [];
+      if (!this.$v.customer.cellphone.$dirty) return errors;
+      !this.$v.customer.cellphone.required && errors.push("Telefono requerido");
+      !this.$v.customer.cellphone.minLength && errors.push("Telefono tiene que ser de 8 digitos");
+      !this.$v.customer.cellphone.maxlength && errors.push("Telefono tiene que ser de 8 digitos");
+
+      return errors;
+    }
+    // marginTop() {
+    //   let marginTop = {}
+    //   if (this.$vuetify.breakpoint.mdAndUp) {
+    //     marginTop.marginTop = '150px'
+    //   } else {
+    //     marginTop.marginTop = '250px'
+    //   }
+    //   return marginTop
+    // }
   },
   methods: {
     openDialogText(item) {
       this.dialog = true
       this.telefono = item.cellphone
     },
+    cleanForm() {
+      this.customer = {
+        name: "",
+        cellphone: ""
+      }
+      this.$v.$reset()
+    },
+    closeDialogCreate() {
+      this.cleanForm()
+      this.createCutomerDialog = false
+    },
     sendMessage() {
       window.location.href = `https://api.whatsapp.com/send?phone=+503${this.telefono}&text=${this.messageWsp ?? 'Mensaje provicional'}`
     },
     async searchCustomer(filters) {
-      this.nameCustomer = filters.nameCustomer
+      try {
+        if (filters.nameCustomer) {
+          this.nameCustomer = filters.nameCustomer
+          this.pagination.page = 1
+          this.primerDoc = null
+          this.ultimoDoc = null
+          await this.getCustomers(false)
+        } else {
+          this.nameCustomer = filters.nameCustomer
+          this.pagination.page = 1
+          this.primerDoc = null
+          this.ultimoDoc = null
+          await this.countAlDocuments()
+          await this.getCustomers(false)
+        }
 
-      await this.getCustomers()
+      } catch (e) {
+        this.temporalAlert({
+          show: true,
+          message: "Algo salio mal",
+          type: "error",
+        })
+      }
     },
-    async addCutomer(){
-    try {
-      const data ={
-        name: this.customer.name.toLowerCase(),
-        cellphone: `${this.customer.cellphone.split('-')[0]}${this.customer.cellphone.split('-')[1]}`
+    changePage(page) {
+      if (page < this.pagination.page) {
+        this.pagination.page = page
+        this.getCustomers(true)
+      } else {
+        this.pagination.page = page
+        this.getCustomers(false)
       }
 
-      await this.$addDoc(this.$collection(this.$DB, "customers"), data);
-      this.temporalAlert({
-        show: true,
-        message: "Cliente guardado",
-        type: "success",
-      })
-      await this.getCustomers()
-      this.createCutomerDialog = false
-    }catch (e) {
-      this.temporalAlert({
-        show: true,
-        message: "error al guardar cliente",
-        type: "error",
-      })
-    }
+    },
+    async addCutomer() {
+      try {
+        this.$v.$touch()
+        if (this.$v.$invalid) {
+          this.temporalAlert({
+            show: true,
+            message: "Faltan campos requeridos",
+            type: "warning",
+          });
+          return false
+        }
+        const data = {
+          name: this.customer.name.toLowerCase(),
+          cellphone: `${this.customer.cellphone.split('-')[0]}${this.customer.cellphone.split('-')[1]}`,
+          timestamp: this.$timestamp.now().toDate().toISOString()
+        }
+
+        await this.$addDoc(this.$collection(this.$DB, "customers"), data);
+        this.temporalAlert({
+          show: true,
+          message: "Cliente guardado",
+          type: "success",
+        })
+        this.ultimoDoc = null
+        this.primerDoc = null
+        this.pagination.page = 1
+        await this.getCustomers(false)
+        this.createCutomerDialog = false
+        this.cleanForm()
+        this.countAlDocuments()
+      } catch (e) {
+        this.temporalAlert({
+          show: true,
+          message: "error al guardar cliente",
+          type: "error",
+        })
+      }
     },
     async deleteCustomer(item) {
       try {
@@ -211,7 +335,10 @@ export default {
           message: "Cliente eliminado con exito",
           type: "success",
         })
-        this.getCustomers()
+        this.ultimoDoc = null
+        this.primerDoc = null
+        this.pagination.page = 1
+        this.getCustomers(true)
       } catch (e) {
         this.temporalAlert({
           show: true,
@@ -222,32 +349,56 @@ export default {
 
 
     },
-    async getCustomers() {
+    async getCustomers(back = false) {
       try {
+        this.loading = true
         this.customers = []
         let query = this.$query(this.$collection(this.$DB, 'customers'))
+
+        query = this.$query(query, this.$orderBy('name'), this.$orderBy('timestamp', 'desc'), this.$limit(5))
+        if (this.ultimoDoc && back) {
+          query = this.$query(query, this.$limitToLast(5), this.$endBefore(this.primerDoc))
+        } else if (this.ultimoDoc) {
+          query = this.$query(query, this.$startAfter(this.ultimoDoc))
+        }
 
         if (this.nameCustomer) {
           query = this.$query(query, this.$where('name', '>=', this.nameCustomer.toLowerCase()), this.$where("name", "<=", this.nameCustomer.toLowerCase() + "\uf8ff"))
         }
 
         const response = await this.$getDocs(query)
+        if (this.nameCustomer !== null) {
+          this.pagination.totalRows = response.size
+        }
         await response.forEach(async (doc) => {
-          const data = {id: doc.id, ...doc.data()}
 
+          const data = {id: doc.id, ...doc.data()}
           this.customers.push(data)
         })
+        this.primerDoc = response?.docs[0]
+        this.ultimoDoc = response?.docs[response?.docs?.length - 1]
+        setTimeout(()=>{
+          this.loading = false
+        },1500)
       } catch (e) {
+        setTimeout(()=>{
+          this.loading = false
+        },1500)
         this.temporalAlert({
           show: true,
           message: "No se pudieron cargar los clientes",
           type: "error",
         })
       }
+    },
+    async countAlDocuments() {
+      const countResponse = await this.$getCountFromServer(this.$collection(this.$DB, 'customers'))
+      this.pagination.totalRows = countResponse.data().count
     }
   },
   async created() {
-    await this.getCustomers()
+    await this.countAlDocuments()
+    await this.getCustomers(false)
   }
 }
 </script>

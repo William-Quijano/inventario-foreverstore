@@ -1,88 +1,119 @@
 <template>
-  <v-row class="justify-center">
-    <v-card class="card-filter" color="pink" elevation="5">
-      <v-card-text style="border: 3px solid purple;">
-        <v-row class="align-center mt-5">
-          <v-col cols="12" sm="6" lg="5" v-if="searchProducto">
-            <v-text-field
-                v-model="name_product"
-                label="Busqueda por producto"
-                outlined
-                rounded
-                class="inputStyle"
-                append-icon="mdi-magnify"
-                dense
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="5" v-if="searchCliente">
-            <v-text-field
-                v-model="customerName"
-                label="Busqueda por cliente"
-                outlined
-                rounded
-                class="inputStyle"
-                dense
-                append-icon="mdi-magnify"></v-text-field>
-          </v-col>
-          <v-col cols="12" md="5" v-if="searchFecha">
-            <v-menu
-                ref="fecha"
-                v-model="isOpenDate"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="auto"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                    v-model="fechaEntrega"
-                    label="Date"
-                    outlined rounded
-                    class="inputStyle"
-                    append-icon="mdi-calendar"
-                    readonly
-                    dense
-                    v-bind="attrs"
-                    v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                  v-model="fechaEntrega"
-                  no-title
-                  @input="isOpenDate = false"
-                  @change="$emit('date', fechaEntrega)"
-                  locale="es-Es"
-              ></v-date-picker>
-            </v-menu>
-          </v-col>
-          <v-col cols="12" sm="6" lg="5" v-if="searchTipo">
-            <v-autocomplete
-                v-model="idTypeProduct"
-                :items="itemsProductType"
-                item-text="name"
-                item-value="id"
-                label="Tipo de prenda"
-                outlined
-                rounded
-                class="inputStyle"
-                dense
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" lg="2" class="pt-0 mb-4 d-flex justify-center" style="gap: 10px">
-            <v-btn color="purple" class="white--text" @click="searchFilters">
-              {{ `Buscar` }}
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-            <v-btn color="purple" class="white--text" @click="cleanFilters">
-              {{ `Limpiar` }}
-              <v-icon>mdi-filter-off</v-icon>
-            </v-btn>
+  <v-expansion-panels v-model="panelBusqueda" class="pink">
+    <v-expansion-panel>
+      <v-expansion-panel-header class="pink purple--text" disable-icon-rotate>
+        Barra de busqueda
+        <template v-slot:actions>
+          <v-icon color="purple">
+            mdi-store-search-outline
+          </v-icon>
+        </template>
+      </v-expansion-panel-header>
+      <v-expansion-panel-content class="pink">
+        <v-row >
+          <v-col cols="12">
+            <v-card class="card-filter" color="pink" elevation="0">
+<!--              style="border: 3px solid purple;"-->
+              <v-card-text >
+                <v-row class="align-center mt-5">
+                  <v-col cols="12" sm="6" lg="5" v-if="searchProducto">
+                    <v-text-field
+                        v-model="name_product"
+                        label="Nombre producto"
+                        outlined
+                        rounded
+                        class="inputStyle"
+                        append-icon="mdi-magnify"
+                        dense
+                        hide-details
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="5" v-if="searchCliente">
+                    <v-text-field
+                        v-model="customerName"
+                        label="Nombre cliente"
+                        outlined
+                        rounded
+                        class="inputStyle"
+                        dense
+                        append-icon="mdi-magnify"
+                        hide-details
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="5" v-if="searchFecha">
+                    <v-menu
+                        ref="fecha"
+                        v-model="isOpenDate"
+                        :close-on-content-click="false"
+                        transition="scale-transition"
+                        offset-y
+                        max-width="290px"
+                        min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                            v-model="fechaEntrega"
+                            label="Date"
+                            outlined rounded
+                            class="inputStyle"
+                            append-icon="mdi-calendar"
+                            readonly
+                            dense
+                            v-bind="attrs"
+                            v-on="on"
+                            hide-details
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                          v-model="fechaEntrega"
+                          no-title
+                          @input="isOpenDate = false"
+                          @change="$emit('date', fechaEntrega)"
+                          locale="es-Es"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="12" sm="6" lg="5" v-if="searchTipo">
+                    <v-autocomplete
+                        v-model="idTypeProduct"
+                        :items="itemsProductType"
+                        item-text="name"
+                        item-value="id"
+                        label="Tipo de prenda"
+                        outlined
+                        rounded
+                        class="inputStyle"
+                        dense
+                        hide-details
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" lg="2" class="pt-0 mb-4 d-flex justify-center" style="gap: 10px">
+                    <v-btn color="purple" class="white--text" @click="searchFilters">
+                      {{ `Buscar` }}
+                      <v-icon>mdi-magnify</v-icon>
+                    </v-btn>
+                    <v-btn color="purple" class="white--text" @click="cleanFilters">
+                      {{ `Limpiar` }}
+                      <v-icon>mdi-filter-off</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+<!--                <v-row>-->
+<!--                  <v-col cols="12">-->
+<!--                    <v-btn color="purple" class="white&#45;&#45;text" text @click="panelBusqueda = false">-->
+<!--                      {{ `Close` }}-->
+<!--                    </v-btn>-->
+<!--                  </v-col>-->
+<!--                </v-row>-->
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
-      </v-card-text>
-    </v-card>
-  </v-row>
+      </v-expansion-panel-content>
+    </v-expansion-panel>
+  </v-expansion-panels>
+
+
 </template>
 <script>
 
@@ -118,6 +149,7 @@ export default {
       customerName: null,
       idTypeProduct: null,
       itemsProductType: [],
+      panelBusqueda: false
     }
   },
   methods: {
@@ -143,7 +175,7 @@ export default {
           typeProduct: this.idTypeProduct
         })
       } else if (this.typeSearch === 'customer') {
-        this.customerName = "";
+        this.customerName = null;
         this.$emit('searchCustomer', {
           nameCustomer: this.customerName,
         })
@@ -174,6 +206,6 @@ export default {
   width: 100%;
   z-index: 3;
   top: 0;
-  position: fixed
+  position: relative;
 }
 </style>

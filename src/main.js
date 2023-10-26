@@ -13,51 +13,81 @@ import "./assets/scss/variables.scss";
 import firebaseConfig from "./firebase/config";
 import {initializeApp} from "firebase/app"
 import {v4} from "uuid"
-import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, where, startAt,endAt, orderBy} from 'firebase/firestore/lite';
-import {Timestamp} from 'firebase/firestore';
-import {getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject} from "firebase/storage";
+import {
+
+} from 'firebase/firestore/lite';
+import { getCountFromServer, addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  endAt,
+  endBefore,
+  getDoc,
+  getDocs,
+  getFirestore,
+  limit,
+  limitToLast,
+  orderBy,
+  query,
+  startAfter,
+  startAt,
+  Timestamp,
+  where,
+writeBatch,
+    runTransaction
+} from 'firebase/firestore';
+import {deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable} from "firebase/storage";
 import momentTime from "moment-timezone";
 import loadComponentes from "@/plugins/loadComponents";
 import Vuelidate from 'vuelidate'
-
-const app = initializeApp(firebaseConfig);
-Vue.prototype.$DB = getFirestore(app)
-Vue.prototype.$storage = getStorage(app)
-Vue.prototype.$ref = ref
-Vue.prototype.$uploadBytesResumable = uploadBytesResumable
-Vue.prototype.$getDownloadURL = getDownloadURL
-Vue.prototype.$deleteObject = deleteObject
-Vue.prototype.$collection = collection
-Vue.prototype.$where = where
-Vue.prototype.$startAt = startAt
-Vue.prototype.$endAt = endAt
-Vue.prototype.$orderBy = orderBy
-Vue.prototype.$query = query
-Vue.prototype.$getDocs = getDocs
-Vue.prototype.$getDoc = getDoc
-Vue.prototype.$addDoc = addDoc
-Vue.prototype.$deleteDoc = deleteDoc
-Vue.prototype.$doc = doc
-Vue.prototype.v4 = v4
-
-Vue.prototype.timestamp = Timestamp
-
-
 // Import Vue FilePond
 import vueFilePond from "vue-filepond";
 
 // Import FilePond styles
 import "filepond/dist/filepond.min.css";
 
-// Import FilePond plugins
-// Please note that you need to install these plugins separately
-
-// Import image preview plugin styles
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
 
-// Import image preview and file type validation plugins
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+
+import imagePreview from 'image-preview-vue'
+import 'image-preview-vue/lib/imagepreviewvue.css'
+
+import {VTextField} from 'vuetify/lib'
+import VCurrencyField from "v-currency-field";
+
+
+const app = initializeApp(firebaseConfig);
+Vue.prototype.$DB = getFirestore(app)
+// Vue.prototype.$db = firestore2(app)
+Vue.prototype.$writeBatch = writeBatch
+Vue.prototype.$storage = getStorage(app)
+Vue.prototype.$ref = ref
+Vue.prototype.$uploadBytesResumable = uploadBytesResumable
+Vue.prototype.$getDownloadURL = getDownloadURL
+Vue.prototype.$deleteObject = deleteObject
+Vue.prototype.$collection = collection
+Vue.prototype.$runTransaction = runTransaction
+// Vue.prototype.$collection2 = collection2
+Vue.prototype.$timestamp = Timestamp
+Vue.prototype.$where = where
+Vue.prototype.$startAt = startAt
+Vue.prototype.$startAfter = startAfter
+Vue.prototype.$limitToLast = limitToLast
+Vue.prototype.$endBefore = endBefore
+Vue.prototype.$endAt = endAt
+Vue.prototype.$orderBy = orderBy
+Vue.prototype.$limit = limit
+Vue.prototype.$query = query
+Vue.prototype.$getDocs = getDocs
+Vue.prototype.$getDoc = getDoc
+Vue.prototype.$getCountFromServer = getCountFromServer
+Vue.prototype.$addDoc = addDoc
+Vue.prototype.$deleteDoc = deleteDoc
+Vue.prototype.$doc = doc
+Vue.prototype.v4 = v4
+
 
 // Create component
 const FilePond = vueFilePond(
@@ -65,11 +95,12 @@ const FilePond = vueFilePond(
     FilePondPluginImagePreview
 );
 
+Vue.use(imagePreview)
+
 Vue.component('FilePond', FilePond)
 
-import { VTextField } from 'vuetify/lib'
-import VCurrencyField from "v-currency-field";
 Vue.component('v-text-field', VTextField)
+
 Vue.use(VCurrencyField, {
   locale: "es-US",
   decimalLength: 2,
